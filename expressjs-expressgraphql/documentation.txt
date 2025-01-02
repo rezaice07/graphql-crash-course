@@ -1,0 +1,43 @@
+Installation:
+-----------------------------
+Install possible dependencies:
+
+"dependencies": {
+    "nodemon": "^3.1.9",
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0"
+}
+
+
+Note hit enter key by the following command...
+npm install --force
+
+##############################################################
+
+Get all users:
+-----------------------------------------
+query GetAllUsers{
+  users{
+    id,
+    username,
+    name,
+    email
+  }
+}
+
+Get single User:
+------------------------------------------
+query GetSingleUser($id: ID) {
+  user(id: $id) {
+    id
+    username
+    name
+    email
+  }
+}
+
+
+{
+  "id": "1"
+}

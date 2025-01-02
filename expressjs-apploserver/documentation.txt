@@ -1,0 +1,9 @@
+
+
+
+npm install apollo-server-express express
+
+
+npm i graphql
+
+npm i apollo-server-express@^2
