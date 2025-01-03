@@ -10,8 +10,10 @@ const {
     GraphQLNonNull,
     GraphQLString,
     GraphQLScalarType,
+    GraphQLInputObjectType
  } = require("graphql");
-const { users } = require("../data/users");
+const { collection } = require("../dbconfig/mongodbConnector");
+const { ObjectId } = require("mongodb");
 
  //Gender Enum Type
 
@@ -28,54 +30,129 @@ const { users } = require("../data/users");
     }
  });
 
- //User Type
- const UserType = new GraphQLObjectType({
-    name:"User",
-    description:"It present a single user",
+ //Product Type
+ const ProductType = new GraphQLObjectType({
+    name:"Product",
+    description:"It present a single product",
     fields:()=>({
-        id:{
-            type:new GraphQLNonNull(GraphQLID)            
+        _id:{
+            type:GraphQLID          
         },
         name:{
-            type:new GraphQLNonNull(GraphQLString)            
+            type:GraphQLString   
         },
-        username:{
-            type:new GraphQLNonNull(GraphQLString)             
+        category:{
+            type:GraphQLString          
         },
-        email:{
-            type:GraphQLString            
+        price:{
+            type:GraphQLFloat            
         },
+        stock:{
+            type:GraphQLFloat            
+        },
+        description:{
+            type:GraphQLString    
+        },
+        rating:{
+            type:GraphQLFloat             
+        }
     })
  });
+ 
+//UserTypeInput
+const UserTypeInput = new GraphQLInputObjectType({
+    name: "UserTypeInput",
+    description: "Taking input to add a new product",
+    fields: () => ({
+      name: {
+          type: new GraphQLNonNull(GraphQLString), //Required
+        },
+        category: {
+          type: new GraphQLNonNull(GraphQLString), //Required
+        },
+        price: {
+          type: GraphQLFloat,
+        },
+        stock: {
+          type: GraphQLFloat,
+        },
+        description: {
+          type: GraphQLString,
+        },
+        rating: {
+          type: GraphQLFloat,
+        },
+    }),
+  });
 
  //Root Query Type
  const RootQueryType=new GraphQLObjectType({
     name:"Query",
     description:"Root Query",
-    fields:()=>({
-        users:{
-            type:new GraphQLList(UserType),
-            resolve:()=>{
-                return users;
+    fields:()=>({        
+        products:{
+            type:new GraphQLList(ProductType),
+            args:{
+                name:{
+                    type:GraphQLString
+                },
+                category:{
+                    type:GraphQLString
+                }
+            },
+            resolve:async (_,{name,category})=>{
+                let products = await collection.find(
+                    {
+                        $or: [
+                          { name: name },
+                          { category: category }
+                        ]
+                      }
+                ).toArray();
+                return products;
             }
         },
-        user:{
-            type:UserType,
+        product:{
+            type:ProductType,
             args:{
-                id:{
+                _id:{
                     type:GraphQLID
                 }
             },
-            resolve:(_,{id})=>{
-                let user=users.find(f=>f.id==id);
-                return user;
+            resolve:async(_,{_id})=>{
+                console.log(_id);
+                const objectId=new ObjectId(_id);
+                let product = await collection.findOne({_id:objectId});
+                return product;
             }
         }
     }),
  });
-
+ 
+//Root Mutation Type
+const RootMutationType = new GraphQLObjectType({
+    name: "Mutation",
+    description: "Root Mutation",
+    fields: () => ({     
+      addProduct: {
+        type: ProductType,
+        args: {
+          input: {
+            type: UserTypeInput,
+          },
+        },
+        resolve: async (_, {input:{name,category,price,stock,description,rating}}) => {    
+          let postedData = { name,category,price,stock,description,rating };
+          let result = await collection.insertOne(postedData);         
+          postedData["_id"]=result.insertedId.toString();
+          return postedData;
+        },
+      },
+    }),
+  });
 
  module.exports={
     RootQueryType,
-    UserType
+    ProductType,
+    RootMutationType
  };

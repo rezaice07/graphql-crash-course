@@ -1,5 +1,6 @@
 const express = require('express');
 const {graphqlHTTP} =require('express-graphql');
+const db=require("./dbconfig/mongodbConnector");
 const { schema } = require('./graphql/schema');
 const app = new express();
 
