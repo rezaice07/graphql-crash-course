@@ -52,3 +52,12 @@ variable :
 {
   "_id": "67758765147b8156e84f06e1"
 }
+
+Adding a New product :
+mutation AddNewProduct{
+  addProduct(
+   input:{name:"Suzuki Hayati EP",category:"Moto Bike",price:118000,stock:100,description:"13cc Motor bike",rating:4.5}
+  ){
+    _id
+  }
+}
