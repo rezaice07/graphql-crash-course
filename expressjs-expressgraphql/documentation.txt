@@ -61,3 +61,30 @@ mutation AddNewProduct{
     _id
   }
 }
+
+Updating product:
+
+mutation updateProduct{
+  updateProduct(
+   input:{
+    _id:"677a836d3b2e136dfb88937f",
+    name:"Suzuki Hayati EP2xxxx",
+    category:"Moto Bike upd",
+    price:118000.23,
+    stock:400,
+    description:"13cc Motor bike upd",
+    rating:5.00
+  }
+  ){
+    _id,
+    name,
+    category,
+    price,
+    stock,
+    description,
+    rating
+  }
+}
+
+Delete Product:
+
